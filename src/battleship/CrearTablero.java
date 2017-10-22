@@ -6,13 +6,13 @@ import java.awt.event.ActionEvent;
 import java.util.Random;
 import javax.swing.JOptionPane;
 
-public class CrearTablero extends javax.swing.JFrame {
+public final class CrearTablero extends javax.swing.JFrame {
     
     int tamanoColumna = 10;
     int tamanoFila = 10;
     Random random = new Random();
     //Tamaño en píxeles del botón
-    private static final int tamanoBoton= 50;
+    private static final int tamanoBoton = 50;
     //Si esa el tablero habilitado para darle click
     private boolean tableroHabilitado = true;    
     //Matríz de botones
@@ -36,34 +36,34 @@ public class CrearTablero extends javax.swing.JFrame {
     
     public CrearTablero() {
         initComponents();
-        inicializarBotones();
+        dibujarBotones();
         //Al iniciar tiene estado poortaviones
         //barco = estadoBarco.PORTAAVIONES;
         finalizar.setVisible(false);
     }   
     
     
-    public void ponerBarco(int c, int f, int direccion){        
+    public void ponerBarco(int columna, int fila, int direccion){        
         
-        if(comprobarEspacios(c, f, direccion, barcoActual.tamano, mUsuario)){
+        if(comprobarEspacios(columna, fila, direccion, barcoActual.tamano, mUsuario)){
         
             for (int i = 0; i < barcoActual.tamano; i++) {
-                mUsuario[c][f] = barcoActual.indicador;
-                mBotones[c][f].setBackground(barcoActual.color);
-                mBotones[c][f].setText(barcoActual.indicador);
+                mUsuario[columna][fila] = barcoActual.indicador;
+                mBotones[columna][fila].setBackground(barcoActual.color);
+                mBotones[columna][fila].setText(barcoActual.indicador);
                 
                 switch (direccion) {
                     case vars.arriba:       
-                        f--;
+                        fila--;
                         break;
                     case vars.abajo:
-                        f++;
+                        fila++;
                         break;
                     case vars.derecha:
-                        c++;
+                        columna++;
                         break;
                     case vars.izquierda:
-                        c--;
+                        columna--;
                         break;
                     default:
                         break;
@@ -138,10 +138,6 @@ public class CrearTablero extends javax.swing.JFrame {
                     }    
             }
         }
-        System.out.println("MATRIZ PC");
-        estadoMatriz(mPC);
-        System.out.println("MATRIZ USUARIO");
-        estadoMatriz(mUsuario);
     }
     
     public boolean comprobarEspacios(int c, int f, int direcion, int espacios, String[][] matris){
@@ -207,7 +203,7 @@ public class CrearTablero extends javax.swing.JFrame {
     }
     
     
-    public void inicializarBotones(){  
+    public void dibujarBotones(){  
         for (int c= 0; c < tamanoColumna; c++) {
             
             for (int f = 0; f < tamanoFila; f++) {
@@ -348,7 +344,7 @@ public class CrearTablero extends javax.swing.JFrame {
 
     private void finalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finalizarActionPerformed
         dispose();
-        new Tablero().setVisible(true);
+        new Juego(mUsuario,mPC,portaaviones,destructor,fragata,transportador1,transportador2,tamanoColumna,tamanoFila).setVisible(true);
     }//GEN-LAST:event_finalizarActionPerformed
 
     
