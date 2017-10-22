@@ -3,92 +3,54 @@ package battleship;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.util.Random;
 import javax.swing.JOptionPane;
 
-public class crearTablero extends javax.swing.JFrame {
+public class CrearTablero extends javax.swing.JFrame {
     
     int tamanoColumna = 10;
     int tamanoFila = 10;
-    private boolean tableroHabilitado = true;
-    //Matriz que llevará la lógica
-    
-    //Matríz de botones
-    private MyButton[][] mGrafica = new MyButton[tamanoColumna][tamanoFila];
+    Random random = new Random();
     //Tamaño en píxeles del botón
     private static final int tamanoBoton= 50;
-    //Tipo barco
-    private enum Barco { PORTAAVIONES, DESTRUCTOR, FRAGATA, TRANSPORTADOR1, TRANSPORTADOR2 };
-    Barco barco;
+    //Si esa el tablero habilitado para darle click
+    private boolean tableroHabilitado = true;    
+    //Matríz de botones
+    private MyButton[][] mBotones = new MyButton[tamanoColumna][tamanoFila];
+    public String[][] mUsuario = new String[tamanoColumna][tamanoFila];
+    public String[][] mPC = new String[tamanoColumna][tamanoFila];
     
-    public String[][] mLogica = new String[tamanoColumna][tamanoFila];
+    //Creación de objetos barcos
+    Barco portaaviones   = new Barco("Portaaviones", "P", new Color(64, 95, 172), 6);
+    Barco destructor     = new Barco("Destructor", "D", new Color(209, 50, 93), 5);
+    Barco fragata        = new Barco("Fragata", "F", new Color(178, 125, 70), 3);
+    Barco transportador1 = new Barco("Transportador 1", "T", new Color(72, 132, 154), 2);
+    Barco transportador2 = new Barco("Transportador 2", "T", new Color(72, 132, 154), 2);
+    Barco finalizado        = new Barco("Finalizado", "", new Color(0, 0, 0), 0); //Barco para estado finalizado
+    //Barco que se está dibujando
+    Barco barcoActual  = portaaviones;
     
-    public crearTablero() {
+    /*private enum estadoBarco { PORTAAVIONES, DESTRUCTOR, FRAGATA, TRANSPORTADOR1, TRANSPORTADOR2 };
+    estadoBarco barco; */
+    
+    
+    public CrearTablero() {
         initComponents();
         inicializarBotones();
         //Al iniciar tiene estado poortaviones
-        barco = Barco.PORTAAVIONES;
+        //barco = estadoBarco.PORTAAVIONES;
         finalizar.setVisible(false);
-    }
+    }   
     
     
-    
-    public void setBarco(int c, int f, int direccion){
-        int espacios = 0;
-        String valor = "";
-        Color color = null;
-        Barco cambiotipo = null;
-        String indicador = "";
+    public void ponerBarco(int c, int f, int direccion){        
         
-        switch (barco) {
-            case PORTAAVIONES:
-                valor = vars.portaaviones;
-                cambiotipo = Barco.DESTRUCTOR;
-                espacios = vars.n_portaaviones;
-                color = new Color(64, 95, 172);
-                indicador = "DESTRUCTOR";
-                break;
-            case DESTRUCTOR:
-                valor = vars.destructor;
-                cambiotipo = Barco.FRAGATA;
-                espacios = vars.n_destructor;
-                color = new Color(209, 50, 93);
-                indicador = "FRAGATA";
-                break;
-            case FRAGATA:
-                valor = vars.fragata;
-                cambiotipo = Barco.TRANSPORTADOR1;
-                espacios = vars.n_fragata;
-                color = new Color(178, 125, 70);
-                indicador = "TRANSPORTADOR1";
-                break;
-            case TRANSPORTADOR1:
-                valor = vars.transportador1;
-                cambiotipo = Barco.TRANSPORTADOR2;
-                espacios = vars.n_transportador1;
-                color = new Color(72, 132, 154);
-                indicador = "TRANSPORTADOR 2";
-                break;
-            case TRANSPORTADOR2:
-                valor = vars.transportador2;
-                cambiotipo = Barco.TRANSPORTADOR2;
-                espacios = vars.n_transportador2;
-                color = new Color(72, 132, 154);
-                indicador = "FINALIZADO";
-                tableroHabilitado = false;
-                finalizar.setVisible(true);
-                break;
-            default:
-                
-                System.out.println("NADA");
-                break;
-        }
+        if(comprobarEspacios(c, f, direccion, barcoActual.tamano, mUsuario)){
         
-        if(comprobarEspacios(c, f, direccion, espacios)){
-        
-            for (int i = 0; i < espacios; i++) {
-                mLogica[c][f] = valor;
-                mGrafica[c][f].setBackground(color);
-                mGrafica[c][f].setText(valor);
+            for (int i = 0; i < barcoActual.tamano; i++) {
+                mUsuario[c][f] = barcoActual.indicador;
+                mBotones[c][f].setBackground(barcoActual.color);
+                mBotones[c][f].setText(barcoActual.indicador);
                 
                 switch (direccion) {
                     case vars.arriba:       
@@ -107,14 +69,82 @@ public class crearTablero extends javax.swing.JFrame {
                         break;
                 }
             }
-            barco = cambiotipo;
-            this.indicador.setText(indicador);
-        } 
-        
-        estadoLogica();
+            
+            if (barcoActual == portaaviones )
+                barcoActual = destructor;
+            else if (barcoActual == destructor)
+                barcoActual = fragata;
+            else if (barcoActual == fragata)
+                barcoActual = transportador1;
+            else if (barcoActual == transportador1)
+                barcoActual = transportador2;
+            else{//Si es transportador 2
+                barcoActual = portaaviones;
+                setPC();
+            }
+            
+            this.indicador.setText(barcoActual.nombre);
+        }
+        else{
+            JOptionPane.showMessageDialog(rootPane, "No se puede posicionar el barco","ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+                
+            
+        //estadoLogica(mUsuario);
     }
     
-    public boolean comprobarEspacios(int c, int f, int direcion, int espacios){
+    public void setPC(){
+        while(barcoActual != finalizado){
+            int c = getRandom(10);
+            int f = getRandom(10);
+            int direccion = getRandom(4);
+            if(comprobarEspacios(c, f, direccion, barcoActual.tamano,mPC)){
+                
+                for (int i = 0; i < barcoActual.tamano; i++) {
+                    mPC[c][f] = barcoActual.indicador;
+
+                    switch (direccion) {
+                        case vars.arriba:       
+                            f--;
+                            break;
+                        case vars.abajo:
+                            f++;
+                            break;
+                        case vars.derecha:
+                            c++;
+                            break;
+                        case vars.izquierda:
+                            c--;
+                            break;
+                        default:
+                            break;
+                    }
+                
+                }             
+                
+                
+                if (barcoActual == portaaviones )
+                    barcoActual = destructor;
+                else if (barcoActual == destructor)
+                    barcoActual = fragata;
+                else if (barcoActual == fragata)
+                    barcoActual = transportador1;
+                else if (barcoActual == transportador1)
+                    barcoActual = transportador2;
+                else{//Si es transportador 2
+                    tableroHabilitado = false;
+                    finalizar.setVisible(true);
+                    barcoActual = finalizado;
+                    }    
+            }
+        }
+        System.out.println("MATRIZ PC");
+        estadoMatriz(mPC);
+        System.out.println("MATRIZ USUARIO");
+        estadoMatriz(mUsuario);
+    }
+    
+    public boolean comprobarEspacios(int c, int f, int direcion, int espacios, String[][] matris){
         int columna= 0;
         int fila = 0;
         int f_resta = 0;
@@ -147,8 +177,8 @@ public class crearTablero extends javax.swing.JFrame {
            boolean existeEspacio = true;
            for (int i = 0; i < espacios; i++) {
                
-               System.out.println("Columna "+c+" Fila "+f);
-                if(mLogica[c][f] == null){
+               
+                if(matris[c][f] == null){
                 }
                 
                 else{
@@ -167,7 +197,7 @@ public class crearTablero extends javax.swing.JFrame {
        else
            return false;
        
-    }
+    } 
     
     
     public int getDireccion(){
@@ -182,31 +212,38 @@ public class crearTablero extends javax.swing.JFrame {
             
             for (int f = 0; f < tamanoFila; f++) {
                 
-                MyButton actual = mGrafica[c][f] = new MyButton(c,f);
+                MyButton actual = mBotones[c][f] = new MyButton(c,f);
                 actual.setBounds((c*tamanoBoton)+30 ,(f*tamanoBoton)+60, tamanoBoton, tamanoBoton);
                 actual.setBackground(new Color(133, 164, 255));
                 actual.setForeground(Color.WHITE);
                 
                 //Se le pone un escuchador al botón
                 actual.addActionListener((ActionEvent e) -> {
-                    if(mLogica[actual.columna][actual.fila] == null && tableroHabilitado){
-                        int direccion = getDireccion();                    
-                        setBarco(actual.columna, actual.fila, direccion);
+                    //Si el botón utlizado es null es decir no esta ocupado y el tablero está habilitado
+                    if(mUsuario[actual.columna][actual.fila] == null && tableroHabilitado){
+                        //Se obitene la dirección orientada
+                        int direccion = getDireccion();
+                        //Si se eligió la drección y no solo se cerro el panel
+                        if(direccion >=0)
+                            //Se trata de poner el Barco
+                            ponerBarco(actual.columna, actual.fila, direccion);
                     }
+                    
                 });
-                
                 contenedor.add(actual);
-            }            
+            }
         }
-    
     }    
     
+    public int getRandom(int limite){
+        return random.nextInt(limite);
+    }
     
-    public void estadoLogica(){
-        
+    
+    public void estadoMatriz(String[][] matris){
         for (int c = 0; c < 10; c++) {
-                System.out.println(isNull(mLogica[0][c])+ " "+ isNull(mLogica[1][c]) + " "+ isNull(mLogica[2][c]) +" "+  isNull(mLogica[3][c]) +" "+ isNull(mLogica[4][c])
-                                    + " "+isNull( mLogica[5][c]) + " "+ isNull(mLogica[6][c]) +" "+  isNull(mLogica[7][c]) +" "+ isNull(mLogica[8][c])+" "+ isNull(mLogica[9][c]));
+                System.out.println(isNull(matris[0][c])+ " "+ isNull(matris[1][c]) + " "+ isNull(matris[2][c]) +" "+  isNull(matris[3][c]) +" "+ isNull(matris[4][c])
+                                    + " "+isNull(matris[5][c]) + " "+ isNull(matris[6][c]) +" "+  isNull(matris[7][c]) +" "+ isNull(matris[8][c])+" "+ isNull(matris[9][c]));
         }
         System.out.println("\n");
     }
@@ -255,7 +292,6 @@ public class crearTablero extends javax.swing.JFrame {
         finalizar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(580, 650));
 
         contenedor.setBackground(java.awt.Color.white);
         contenedor.setPreferredSize(new java.awt.Dimension(580, 650));
@@ -330,20 +366,21 @@ public class crearTablero extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(crearTablero.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CrearTablero.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(crearTablero.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CrearTablero.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(crearTablero.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CrearTablero.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(crearTablero.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CrearTablero.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new crearTablero().setVisible(true);
+                new CrearTablero().setVisible(true);
             }
         });
     }
