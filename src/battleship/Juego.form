@@ -29,14 +29,14 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="panelPC" min="-2" max="-2" attributes="0"/>
+              <Component id="panelUsuario" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="puntajePC" min="-2" max="-2" attributes="0"/>
                   <Component id="puntajeUsu" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-              <Component id="panelUsu" min="-2" max="-2" attributes="0"/>
+              <Component id="panelPC" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
@@ -58,8 +58,8 @@
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="panelUsu" max="32767" attributes="0"/>
                   <Component id="panelPC" max="32767" attributes="0"/>
+                  <Component id="panelUsuario" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="puntajeUsu" min="-2" max="-2" attributes="0"/>
                       <EmptySpace pref="88" max="32767" attributes="0"/>
@@ -72,7 +72,7 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="javax.swing.JPanel" name="panelPC">
+    <Container class="javax.swing.JPanel" name="panelUsuario">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" id="white" palette="1" red="ff" type="palette"/>
@@ -113,7 +113,7 @@
         <Property name="text" type="java.lang.String" value="TABLERO PC"/>
       </Properties>
     </Component>
-    <Container class="javax.swing.JPanel" name="panelUsu">
+    <Container class="javax.swing.JPanel" name="panelPC">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" id="white" palette="1" red="ff" type="palette"/>

@@ -14,7 +14,9 @@ public final class Juego extends javax.swing.JFrame {
     Barco fragata;
     Barco transportador1;
     Barco transportador2;
-    boolean turnoPC;
+    Barco finalizado;
+    boolean turnoPC = true;
+    boolean turnoUsu = true;
     private final String[][] mPC;
     private final String[][] mUsuario;
     private final MyButton[][] btnPC;
@@ -22,8 +24,9 @@ public final class Juego extends javax.swing.JFrame {
     private static final int tamanoBoton = 45;
 
 
-    public Juego(String[][] mUsuario,String[][] mPC,Barco portaaviones,Barco destructor,Barco fragata,Barco transportador1,Barco transportador2,int tamanoColumna,int tamanoFila) {
+    public Juego(String[][] mUsuario,String[][] mPC,Barco portaaviones,Barco destructor,Barco fragata,Barco transportador1,Barco transportador2,Barco finalizado,int tamanoColumna,int tamanoFila) {
         initComponents();
+        //Asignación de variables enviadas
         this.mUsuario = mUsuario;
         this.mPC = mPC;
         this.portaaviones = portaaviones;
@@ -31,11 +34,23 @@ public final class Juego extends javax.swing.JFrame {
         this.fragata = fragata;
         this.transportador1 = transportador1;
         this.transportador2 = transportador2;
+        this.finalizado = finalizado;
         this.tamanoColumna = tamanoColumna;
         this.tamanoFila = tamanoFila;
+        
+        //Asignar labels
+        this.portaaviones.setLabels(lblPortaavionesPC, lblPortaavionesU);
+        this.destructor.setLabels(lblDestructorPC, lblDestructorU);
+        this.fragata.setLabels(lblFragataPC, lblFragataU);
+        this.transportador1.setLabels(lblTransportador1PC, lblTransportador1U);
+        this.transportador2.setLabels(lblTransportador2PC, lblTransportador2U);
+        
+        //Matrices de botones
         btnPC = new MyButton[tamanoColumna][tamanoFila];
         btnUsuario = new MyButton[tamanoColumna][tamanoFila];
+        
         dibujarBotones();
+        estadoMatrices();
     }
     
     public void dibujarBotones(){  
@@ -43,49 +58,92 @@ public final class Juego extends javax.swing.JFrame {
             
             for (int fila = 0; fila < tamanoFila; fila++) {
                 
+                //Botones para panel Uusario PALIDO
+                MyButton actualUsuario = btnUsuario[columna][fila] = new MyButton(columna,fila);
+                actualUsuario.setBounds((columna*tamanoBoton + 15),(fila*tamanoBoton)+15, tamanoBoton, tamanoBoton);
+                actualUsuario.setBackground(new Color(255, 178, 255));
+                actualUsuario.setForeground(Color.WHITE);
+                actualUsuario.setBorder(null);
+                
+                actualUsuario.addActionListener((ActionEvent e) -> {
+
+                    if(/*mUsuario[actualUsuario.columna][actualUsuario.fila] == null && */turnoUsu){
+                        System.out.println(mUsuario[actualUsuario.columna][actualUsuario.fila]);
+                    }
+                    
+                });
+                panelUsuario.add(actualUsuario);
+                
+                
+                //Botones para panel PC
                 MyButton actualPC = btnPC[columna][fila] = new MyButton(columna,fila);
                 actualPC.setBounds((columna*tamanoBoton + 15),(fila*tamanoBoton)+15, tamanoBoton, tamanoBoton);
-                actualPC.setBackground(new Color(255, 178, 255));
+                actualPC.setBackground(new Color(133, 164, 255));
                 actualPC.setForeground(Color.WHITE);
                 actualPC.setBorder(null);
                 
                 actualPC.addActionListener((ActionEvent e) -> {
                     
-                    if(mPC[actualPC.columna][actualPC.fila] == null && turnoPC){
-                        
+                    if(turnoPC){
+                        clickBotonPC(actualPC.columna, actualPC.fila);
                     }
-                    
                 });
                 panelPC.add(actualPC);
-                
-                MyButton actualUsu = btnUsuario[columna][fila] = new MyButton(columna,fila);
-                actualUsu.setBounds((columna*tamanoBoton + 15),(fila*tamanoBoton)+15, tamanoBoton, tamanoBoton);
-                actualUsu.setBackground(new Color(133, 164, 255));
-                actualUsu.setForeground(Color.WHITE);
-                actualUsu.setBorder(null);
-                
-                actualUsu.addActionListener((ActionEvent e) -> {
-                    
-                    if(mUsuario[actualUsu.columna][actualUsu.fila] == null && turnoPC){
-                        
-                    }
-                    
-                });
-                panelUsu.add(actualUsu);
             }
         }
     } 
     
   
+    public void clickBotonPC(int columna, int fila){
+       String click = mPC[columna][fila];
+       Barco barcoAcertado;
+       boolean acerto = true;
+        if (click !="x") {
+            if(click == portaaviones.indicador)
+                barcoAcertado = portaaviones;
+            else if(click == destructor.indicador)
+                barcoAcertado = destructor;
+            else if(click == fragata.indicador)
+                barcoAcertado = fragata;
+            else if(click == transportador1.indicador)
+                barcoAcertado = transportador1;
+            else if(click == transportador2.indicador)
+                barcoAcertado = transportador2;
+            else{
+                barcoAcertado = finalizado;
+                acerto = false;
+            }
+
+                btnPC[columna][fila].setBackground(barcoAcertado.color);
+                btnPC[columna][fila].setText(barcoAcertado.indicador);
+                if (barcoAcertado!=finalizado) {
+                    barcoAcertado.puntaje--;
+                    barcoAcertado.PC.setText(String.valueOf(barcoAcertado.puntaje));
+                }
+
+                if (acerto) {
+                   turnoUsu = true;
+                   mPC[columna][fila] = "x";
+               }
+         }
+    }
     
     
-    
-    public void estadoMatriz(String[][] matris){
+    public void estadoMatrices(){
+        System.out.println("USUARIO");
+        String[][] matris = mUsuario;
         for (int c = 0; c < 10; c++) {
                 System.out.println(isNull(matris[0][c])+ " "+ isNull(matris[1][c]) + " "+ isNull(matris[2][c]) +" "+  isNull(matris[3][c]) +" "+ isNull(matris[4][c])
                                     + " "+isNull(matris[5][c]) + " "+ isNull(matris[6][c]) +" "+  isNull(matris[7][c]) +" "+ isNull(matris[8][c])+" "+ isNull(matris[9][c]));
         }
         System.out.println("\n");
+        
+        System.out.println("PC");
+        matris = mPC;
+        for (int c = 0; c < 10; c++) {
+                System.out.println(isNull(matris[0][c])+ " "+ isNull(matris[1][c]) + " "+ isNull(matris[2][c]) +" "+  isNull(matris[3][c]) +" "+ isNull(matris[4][c])
+                                    + " "+isNull(matris[5][c]) + " "+ isNull(matris[6][c]) +" "+  isNull(matris[7][c]) +" "+ isNull(matris[8][c])+" "+ isNull(matris[9][c]));
+        }
     }
     
     public String isNull(String str){
@@ -101,10 +159,10 @@ public final class Juego extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        panelPC = new javax.swing.JPanel();
+        panelUsuario = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        panelUsu = new javax.swing.JPanel();
+        panelPC = new javax.swing.JPanel();
         puntajeUsu = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -136,17 +194,17 @@ public final class Juego extends javax.swing.JFrame {
         setBackground(new java.awt.Color(234, 249, 246));
         setResizable(false);
 
-        panelPC.setBackground(java.awt.Color.white);
-        panelPC.setMinimumSize(new java.awt.Dimension(480, 480));
+        panelUsuario.setBackground(java.awt.Color.white);
+        panelUsuario.setMinimumSize(new java.awt.Dimension(480, 480));
 
-        javax.swing.GroupLayout panelPCLayout = new javax.swing.GroupLayout(panelPC);
-        panelPC.setLayout(panelPCLayout);
-        panelPCLayout.setHorizontalGroup(
-            panelPCLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout panelUsuarioLayout = new javax.swing.GroupLayout(panelUsuario);
+        panelUsuario.setLayout(panelUsuarioLayout);
+        panelUsuarioLayout.setHorizontalGroup(
+            panelUsuarioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 480, Short.MAX_VALUE)
         );
-        panelPCLayout.setVerticalGroup(
-            panelPCLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        panelUsuarioLayout.setVerticalGroup(
+            panelUsuarioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
@@ -158,17 +216,17 @@ public final class Juego extends javax.swing.JFrame {
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("TABLERO PC");
 
-        panelUsu.setBackground(java.awt.Color.white);
-        panelUsu.setMinimumSize(new java.awt.Dimension(480, 480));
+        panelPC.setBackground(java.awt.Color.white);
+        panelPC.setMinimumSize(new java.awt.Dimension(480, 480));
 
-        javax.swing.GroupLayout panelUsuLayout = new javax.swing.GroupLayout(panelUsu);
-        panelUsu.setLayout(panelUsuLayout);
-        panelUsuLayout.setHorizontalGroup(
-            panelUsuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout panelPCLayout = new javax.swing.GroupLayout(panelPC);
+        panelPC.setLayout(panelPCLayout);
+        panelPCLayout.setHorizontalGroup(
+            panelPCLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 480, Short.MAX_VALUE)
         );
-        panelUsuLayout.setVerticalGroup(
-            panelUsuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        panelPCLayout.setVerticalGroup(
+            panelPCLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
@@ -387,13 +445,13 @@ public final class Juego extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(panelPC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panelUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(puntajePC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(puntajeUsu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(panelUsu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panelPC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGap(133, 133, 133)
@@ -411,8 +469,8 @@ public final class Juego extends javax.swing.JFrame {
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(panelUsu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(panelPC, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(puntajeUsu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
@@ -466,10 +524,10 @@ public final class Juego extends javax.swing.JFrame {
     private javax.swing.JLabel lblTransportador2PC1;
     private javax.swing.JLabel lblTransportador2U;
     private javax.swing.JPanel panelPC;
-    private javax.swing.JPanel panelUsu;
     private javax.swing.JPanel panelUsu1;
     private javax.swing.JPanel panelUsu2;
     private javax.swing.JPanel panelUsu3;
+    private javax.swing.JPanel panelUsuario;
     private javax.swing.JPanel puntajePC;
     private javax.swing.JPanel puntajeUsu;
     // End of variables declaration//GEN-END:variables
