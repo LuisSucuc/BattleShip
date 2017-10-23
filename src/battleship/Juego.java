@@ -1,159 +1,235 @@
-
 package battleship;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-
+import java.util.Random;
+import javax.swing.JOptionPane;
 
 public final class Juego extends javax.swing.JFrame {
-    
+
     int tamanoColumna;
     int tamanoFila;
-    Barco portaaviones;
-    Barco destructor;
-    Barco fragata;
-    Barco transportador1;
-    Barco transportador2;
+    Barco portaavionesPC;
+    Barco destructorPC;
+    Barco fragataPC;
+    Barco transportador1PC;
+    Barco transportador2PC;
+    Barco portaavionesU;
+    Barco destructorU;
+    Barco fragataU;
+    Barco transportador1U;
+    Barco transportador2U;
+
     Barco finalizado;
-    boolean turnoPC = true;
-    boolean turnoUsu = true;
+    String posicionMarcada = "X";
+    boolean turnoPC = false;
     private final String[][] mPC;
     private final String[][] mUsuario;
     private final MyButton[][] btnPC;
     private final MyButton[][] btnUsuario;
     private static final int tamanoBoton = 45;
+    Random random = new Random();
 
-
-    public Juego(String[][] mUsuario,String[][] mPC,Barco portaaviones,Barco destructor,Barco fragata,Barco transportador1,Barco transportador2,Barco finalizado,int tamanoColumna,int tamanoFila) {
+    public Juego(String[][] mUsuario, String[][] mPC, Barco portaaviones, Barco destructor, Barco fragata, Barco transportador1, Barco transportador2, Barco finalizado, int tamanoColumna, int tamanoFila) {
         initComponents();
         //Asignación de variables enviadas
         this.mUsuario = mUsuario;
         this.mPC = mPC;
-        this.portaaviones = portaaviones;
-        this.destructor = destructor;
-        this.fragata = fragata;
-        this.transportador1 = transportador1;
-        this.transportador2 = transportador2;
+        
+        this.portaavionesPC = portaaviones;
+        this.destructorPC = destructor;
+        this.fragataPC = fragata;
+        this.transportador1PC = transportador1;
+        this.transportador2PC = transportador2;
+        
+        this.portaavionesU = copiarObjeto(portaaviones);
+        this.destructorU = copiarObjeto(destructor);
+        this.fragataU = copiarObjeto(fragata);
+        this.transportador1U = copiarObjeto(transportador1);
+        this.transportador2U = copiarObjeto(transportador2);
+        
         this.finalizado = finalizado;
         this.tamanoColumna = tamanoColumna;
         this.tamanoFila = tamanoFila;
-        
+
         //Asignar labels
-        this.portaaviones.setLabels(lblPortaavionesPC, lblPortaavionesU);
-        this.destructor.setLabels(lblDestructorPC, lblDestructorU);
-        this.fragata.setLabels(lblFragataPC, lblFragataU);
-        this.transportador1.setLabels(lblTransportador1PC, lblTransportador1U);
-        this.transportador2.setLabels(lblTransportador2PC, lblTransportador2U);
+        this.portaavionesPC.setLabel(lblPortaavionesPC);
+        this.destructorPC.setLabel(lblDestructorPC);
+        this.fragataPC.setLabel(lblFragataPC);
+        this.transportador1PC.setLabel(lblTransportador1PC);
+        this.transportador2PC.setLabel(lblTransportador2PC);
+
         
+        this.portaavionesU.setLabel(lblPortaavionesU);
+        this.destructorU.setLabel(lblDestructorU);
+        this.fragataU.setLabel(lblFragataU);
+        this.transportador1U.setLabel(lblTransportador1U);
+        this.transportador2U.setLabel(lblTransportador2U);
+        
+
         //Matrices de botones
         btnPC = new MyButton[tamanoColumna][tamanoFila];
         btnUsuario = new MyButton[tamanoColumna][tamanoFila];
-        
+
         dibujarBotones();
         estadoMatrices();
     }
-    
-    public void dibujarBotones(){  
-        for (int columna= 0; columna < tamanoColumna; columna++) {
-            
-            for (int fila = 0; fila < tamanoFila; fila++) {
-                
-                //Botones para panel Uusario PALIDO
-                MyButton actualUsuario = btnUsuario[columna][fila] = new MyButton(columna,fila);
-                actualUsuario.setBounds((columna*tamanoBoton + 15),(fila*tamanoBoton)+15, tamanoBoton, tamanoBoton);
-                actualUsuario.setBackground(new Color(255, 178, 255));
-                actualUsuario.setForeground(Color.WHITE);
-                actualUsuario.setBorder(null);
-                
-                actualUsuario.addActionListener((ActionEvent e) -> {
 
-                    if(/*mUsuario[actualUsuario.columna][actualUsuario.fila] == null && */turnoUsu){
-                        System.out.println(mUsuario[actualUsuario.columna][actualUsuario.fila]);
-                    }
-                    
-                });
+    public void dibujarBotones() {
+        for (int columna = 0; columna < tamanoColumna; columna++) {
+            for (int fila = 0; fila < tamanoFila; fila++) {
+                //Botones para panel Uusario PALIDO
+                MyButton actualUsuario = btnUsuario[columna][fila] = new MyButton(columna, fila);
+                actualUsuario.setBounds((columna * tamanoBoton + 15), (fila * tamanoBoton) + 15, tamanoBoton, tamanoBoton);
+                actualUsuario.setBackground(new Color(255, 178, 255));
                 panelUsuario.add(actualUsuario);
-                
-                
+
                 //Botones para panel PC
-                MyButton actualPC = btnPC[columna][fila] = new MyButton(columna,fila);
-                actualPC.setBounds((columna*tamanoBoton + 15),(fila*tamanoBoton)+15, tamanoBoton, tamanoBoton);
+                MyButton actualPC = btnPC[columna][fila] = new MyButton(columna, fila);
+                actualPC.setBounds((columna * tamanoBoton + 15), (fila * tamanoBoton) + 15, tamanoBoton, tamanoBoton);
                 actualPC.setBackground(new Color(133, 164, 255));
-                actualPC.setForeground(Color.WHITE);
-                actualPC.setBorder(null);
-                
                 actualPC.addActionListener((ActionEvent e) -> {
-                    
-                    if(turnoPC){
-                        clickBotonPC(actualPC.columna, actualPC.fila);
-                    }
+                    clickUsuario(actualUsuario.columna, actualUsuario.fila);
                 });
                 panelPC.add(actualPC);
             }
         }
-    } 
-    
-  
-    public void clickBotonPC(int columna, int fila){
-       String click = mPC[columna][fila];
-       Barco barcoAcertado;
-       boolean acerto = true;
-        if (click !="x") {
-            if(click == portaaviones.indicador)
-                barcoAcertado = portaaviones;
-            else if(click == destructor.indicador)
-                barcoAcertado = destructor;
-            else if(click == fragata.indicador)
-                barcoAcertado = fragata;
-            else if(click == transportador1.indicador)
-                barcoAcertado = transportador1;
-            else if(click == transportador2.indicador)
-                barcoAcertado = transportador2;
-            else{
+    }
+
+    public void clickUsuario(int columna, int fila) {
+        if (!turnoPC) {
+            String click = mPC[columna][fila];
+            Barco barcoAcertado;
+            boolean acerto = true;
+            //Si ya fue marcado
+            if (click != posicionMarcada) {
+                if (click == portaavionesPC.indicador) {
+                    barcoAcertado = portaavionesPC;
+                } else if (click == destructorPC.indicador) {
+                    barcoAcertado = destructorPC;
+                } else if (click == fragataPC.indicador) {
+                    barcoAcertado = fragataPC;
+                } else if (click == transportador1PC.indicador) {
+                    barcoAcertado = transportador1PC;
+                } else if (click == transportador2PC.indicador) {
+                    barcoAcertado = transportador2PC;
+                } else {
+                    barcoAcertado = finalizado;
+                    acerto = false;
+                }
+
+                btnPC[columna][fila].setBackground(barcoAcertado.color);
+                btnPC[columna][fila].setText(barcoAcertado.indicador);
+                mPC[columna][fila] = posicionMarcada;
+
+                if (acerto) {
+                    barcoAcertado.restarPuntaje();
+                    barcoAcertado.actualizarLabel();
+                    existeGanador();
+                    
+                    
+                } else {
+
+                    clickPC();
+                }
+                
+            }
+        }
+    }
+
+    public void clickPC() {
+        turnoPC = true;
+        int columna = getRandom(10);
+        int fila = getRandom(10);
+        String click = mUsuario[columna][fila];
+        
+        Barco barcoAcertado;
+        boolean acerto = true;
+        //Si ya fue marcado
+        if (click != posicionMarcada) {
+            if (click == portaavionesU.indicador) {
+                barcoAcertado = portaavionesU;
+            } else if (click == destructorU.indicador) {
+                barcoAcertado = destructorU;
+            } else if (click == fragataU.indicador) {
+                barcoAcertado = fragataU;
+            } else if (click == transportador1U.indicador) {
+                barcoAcertado = transportador1U;
+            } else if (click == transportador2U.indicador) {
+                barcoAcertado = transportador2U;
+            } else {
                 barcoAcertado = finalizado;
                 acerto = false;
             }
 
-                btnPC[columna][fila].setBackground(barcoAcertado.color);
-                btnPC[columna][fila].setText(barcoAcertado.indicador);
-                if (barcoAcertado!=finalizado) {
-                    barcoAcertado.puntaje--;
-                    barcoAcertado.PC.setText(String.valueOf(barcoAcertado.puntaje));
-                }
+            btnUsuario[columna][fila].setBackground(barcoAcertado.color);
+            btnUsuario[columna][fila].setText(barcoAcertado.indicador);
+            mUsuario[columna][fila] = posicionMarcada;
+           
 
-                if (acerto) {
-                   turnoUsu = true;
-                   mPC[columna][fila] = "x";
-               }
-         }
+            if (acerto) {
+                barcoAcertado.restarPuntaje();
+                barcoAcertado.actualizarLabel();
+                existeGanador();
+                clickPC();
+            } else {
+                 turnoPC = false;        
+            }
+            
+        } else {
+            clickPC();
+        }
     }
-    
-    
-    public void estadoMatrices(){
+
+    public void estadoMatrices() {
         System.out.println("USUARIO");
         String[][] matris = mUsuario;
         for (int c = 0; c < 10; c++) {
-                System.out.println(isNull(matris[0][c])+ " "+ isNull(matris[1][c]) + " "+ isNull(matris[2][c]) +" "+  isNull(matris[3][c]) +" "+ isNull(matris[4][c])
-                                    + " "+isNull(matris[5][c]) + " "+ isNull(matris[6][c]) +" "+  isNull(matris[7][c]) +" "+ isNull(matris[8][c])+" "+ isNull(matris[9][c]));
+            System.out.println(isNull(matris[0][c]) + " " + isNull(matris[1][c]) + " " + isNull(matris[2][c]) + " " + isNull(matris[3][c]) + " " + isNull(matris[4][c])
+                    + " " + isNull(matris[5][c]) + " " + isNull(matris[6][c]) + " " + isNull(matris[7][c]) + " " + isNull(matris[8][c]) + " " + isNull(matris[9][c]));
         }
         System.out.println("\n");
-        
+
         System.out.println("PC");
         matris = mPC;
         for (int c = 0; c < 10; c++) {
-                System.out.println(isNull(matris[0][c])+ " "+ isNull(matris[1][c]) + " "+ isNull(matris[2][c]) +" "+  isNull(matris[3][c]) +" "+ isNull(matris[4][c])
-                                    + " "+isNull(matris[5][c]) + " "+ isNull(matris[6][c]) +" "+  isNull(matris[7][c]) +" "+ isNull(matris[8][c])+" "+ isNull(matris[9][c]));
+            System.out.println(isNull(matris[0][c]) + " " + isNull(matris[1][c]) + " " + isNull(matris[2][c]) + " " + isNull(matris[3][c]) + " " + isNull(matris[4][c])
+                    + " " + isNull(matris[5][c]) + " " + isNull(matris[6][c]) + " " + isNull(matris[7][c]) + " " + isNull(matris[8][c]) + " " + isNull(matris[9][c]));
+        }
+    }
+
+    public String isNull(String str) {
+        if (str == null) {
+            return "-";
+        } else {
+            return str;
+        }
+
+    }
+    
+    public void existeGanador(){
+        boolean ganador = false;
+        if(portaavionesPC.puntaje == 0 && destructorPC.puntaje == 0 && fragataPC.puntaje == 0 && transportador1PC.puntaje == 0 && transportador2PC.puntaje == 0){
+               JOptionPane.showConfirmDialog(rootPane, "GANO USUARIO","GANADOR", JOptionPane.PLAIN_MESSAGE);
+               ganador = true;
+        }
+        
+        if(portaavionesU.puntaje == 0 && destructorU.puntaje == 0 && fragataU.puntaje == 0 && transportador1U.puntaje == 0 && transportador2U.puntaje == 0){
+               JOptionPane.showConfirmDialog(rootPane, "GANO Computadora","GANADOR", JOptionPane.PLAIN_MESSAGE);
+               ganador = true;
+        }
+        if (ganador) {
+            System.exit(0);
         }
     }
     
-    public String isNull(String str){
-        if(str == null)
-            return "-";
-        else
-            return str;
-                    
+    public int getRandom(int limite){
+        return random.nextInt(limite);
     }
-
+    
+    public Barco copiarObjeto(Barco objeto){
+        return new Barco(objeto.nombre, objeto.indicador, objeto.color, objeto.tamano);
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -480,7 +556,6 @@ public final class Juego extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

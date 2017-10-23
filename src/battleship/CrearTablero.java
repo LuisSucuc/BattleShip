@@ -25,8 +25,8 @@ public final class CrearTablero extends javax.swing.JFrame {
     Barco destructor     = new Barco("Destructor", "D", new Color(209, 50, 93), 5);
     Barco fragata        = new Barco("Fragata", "F", new Color(178, 125, 70), 3);
     Barco transportador1 = new Barco("Transportador 1", "T", new Color(72, 132, 154), 2);
-    Barco transportador2 = new Barco("Transportador 2", "T", new Color(72, 132, 154), 2);
-    Barco finalizado        = new Barco("Finalizado", "", Color.white, 0); //Barco para estado finalizado
+    Barco transportador2 = new Barco("Transportador 2", "t", new Color(72, 132, 154), 2);
+    Barco finalizado     = new Barco("Finalizado", "", Color.BLACK, 0); //Barco para estado finalizado
     //Barco que se está dibujando
     Barco barcoActual  = portaaviones;
     

@@ -11,8 +11,7 @@ public class Barco {
     Color color;
     int tamano;
     int puntaje;
-    public JLabel PC;
-    public JLabel Usuario;
+    public JLabel puntajeVisual;
     
     Barco(String nombre, String indicador, Color color, int tamano){
         this.nombre = nombre;
@@ -22,10 +21,21 @@ public class Barco {
         this.puntaje = tamano;
     }
     
-    public void setLabels(JLabel PC, JLabel Usuario){
-        this.PC = PC;
-        this.Usuario = Usuario;
+    public void setLabel(JLabel puntajeVisual){
+        this.puntajeVisual = puntajeVisual;
     }
 
-
+    public void actualizarLabel(){
+        this.puntajeVisual.setText(String.valueOf(this.puntaje));
+    }
+    
+    public void restarPuntaje(){
+        puntaje--;
+    }
+    
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }
