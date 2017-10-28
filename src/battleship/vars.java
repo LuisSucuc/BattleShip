@@ -1,15 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package battleship;
 
-/**
- *
- * @author luissucuc
- */
+
 public class vars {
+    //Variables para identificar facilmente 
     public static final String portaaviones = "P";
     public static final String destructor = "D";
     public static final String fragata = "F";

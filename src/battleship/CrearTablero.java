@@ -8,16 +8,21 @@ import javax.swing.JOptionPane;
 
 public final class CrearTablero extends javax.swing.JFrame {
     
+    
+    //Tamaño de la columna
     int tamanoColumna = 10;
+    //Tamaño de la fila
     int tamanoFila = 10;
     Random random = new Random();
     //Tamaño en píxeles del botón
     private static final int tamanoBoton = 50;
-    //Si esa el tablero habilitado para darle click
+    //Si esa el tablero habilitado para darle click mientras se asigna
     private boolean tableroHabilitado = true;    
     //Matríz de botones
     private MyButton[][] mBotones = new MyButton[tamanoColumna][tamanoFila];
+    //Matriz de posiciones para usuario
     public String[][] mUsuario = new String[tamanoColumna][tamanoFila];
+    //Matriz de posiciones para PC  
     public String[][] mPC = new String[tamanoColumna][tamanoFila];
     
     //Creación de objetos barcos
@@ -35,23 +40,28 @@ public final class CrearTablero extends javax.swing.JFrame {
     
     
     public CrearTablero() {
+        //Se dibujan los componentes visuales
         initComponents();
+        //Se dibujan los botones 
         dibujarBotones();
-        //Al iniciar tiene estado poortaviones
-        //barco = estadoBarco.PORTAAVIONES;
+        //El botón finalizar no se muestra
         finalizar.setVisible(false);
     }   
     
-    
+    //Funcion que recibe la ubicacion del barco y direccion
     public void ponerBarco(int columna, int fila, int direccion){        
-        
-        if(comprobarEspacios(columna, fila, direccion, barcoActual.tamano, mUsuario)){
-        
+        //Si existen espacios en la columna, fila direccion, tamaño y la matriz especificada
+        if(existenEspacios(columna, fila, direccion, barcoActual.tamano, mUsuario)){
+            
+            //For hasta el tamaño del barco actual
             for (int i = 0; i < barcoActual.tamano; i++) {
+                //Se pone el inidcador en la matris usuario del barco actual 
                 mUsuario[columna][fila] = barcoActual.indicador;
+                //Para el botón en esa posición se le pone el color y letra (indicador)
                 mBotones[columna][fila].setBackground(barcoActual.color);
                 mBotones[columna][fila].setText(barcoActual.indicador);
                 
+                //Dependiendo la dirección se va restando la fila o la columna
                 switch (direccion) {
                     case vars.arriba:       
                         fila--;
@@ -70,6 +80,7 @@ public final class CrearTablero extends javax.swing.JFrame {
                 }
             }
             
+            //Se camabia el barco actual
             if (barcoActual == portaaviones )
                 barcoActual = destructor;
             else if (barcoActual == destructor)
@@ -80,41 +91,53 @@ public final class CrearTablero extends javax.swing.JFrame {
                 barcoActual = transportador2;
             else{//Si es transportador 2
                 barcoActual = portaaviones;
-                setPC();
+                //Se le indica que debe crear matriz automáticamente
+                crearMatrizPC();
             }
             
+            //Al título se le pone el nombre del barco actual
             this.indicador.setText(barcoActual.nombre);
+            
         }
+        
+        //De lo contrario se muestra el mensaje de error
         else{
             JOptionPane.showMessageDialog(rootPane, "No se puede posicionar el barco","ERROR", JOptionPane.ERROR_MESSAGE);
         }
                 
-            
         //estadoLogica(mUsuario);
     }
     
-    public void setPC(){
+    //Función para crear automáticamente la matriz de la computadora
+    public void crearMatrizPC(){
+        //Barco actual sea diferente de finalizado
         while(barcoActual != finalizado){
-            int c = getRandom(10);
-            int f = getRandom(10);
+            //Se elige en random la fila, columna y dirección
+            int columna = getRandom(10);
+            int fila = getRandom(10);
             int direccion = getRandom(4);
-            if(comprobarEspacios(c, f, direccion, barcoActual.tamano,mPC)){
+            
+            //Si existen espacios
+            if(existenEspacios(columna, fila, direccion, barcoActual.tamano, mPC)){
                 
+                //For hasta el tamaño del barco actual
                 for (int i = 0; i < barcoActual.tamano; i++) {
-                    mPC[c][f] = barcoActual.indicador;
+                    //Se iguala el indicador a la posición acutal
+                    mPC[columna][fila] = barcoActual.indicador;
 
+                    //Dependiento la dirección se va restando a la posición
                     switch (direccion) {
                         case vars.arriba:       
-                            f--;
+                            fila--;
                             break;
                         case vars.abajo:
-                            f++;
+                            fila++;
                             break;
                         case vars.derecha:
-                            c++;
+                            columna++;
                             break;
                         case vars.izquierda:
-                            c--;
+                            columna--;
                             break;
                         default:
                             break;
@@ -122,7 +145,7 @@ public final class CrearTablero extends javax.swing.JFrame {
                 
                 }             
                 
-                
+                ////Se camabia el barco actual
                 if (barcoActual == portaaviones )
                     barcoActual = destructor;
                 else if (barcoActual == destructor)
@@ -133,22 +156,31 @@ public final class CrearTablero extends javax.swing.JFrame {
                     barcoActual = transportador2;
                 else{//Si es transportador 2
                     tableroHabilitado = false;
+                    //Se habilita el botón finalizar
                     finalizar.setVisible(true);
+                    //Y el barco actual es finalizado para salir del while
                     barcoActual = finalizado;
                     }    
             }
         }
     }
     
-    public boolean comprobarEspacios(int c, int f, int direcion, int espacios, String[][] matris){
+    //Funcion que comprueba si existen espacios
+    public boolean existenEspacios(int c, int f, int direcion, int espacios, String[][] matriz){
         int columna= 0;
         int fila = 0;
+        
+        //Para sumar o restar la columna y no hacer otro switch
         int f_resta = 0;
         int c_resta = 0;
+        //Se restan los espacios
         espacios--;
+        //Dependiento la dirección
         switch (direcion) {
                 case vars.arriba:
+                    //se le resta a la fila el numero de espacios necesitados
                     fila = f - espacios;
+                    //Si es hacia arriba siempre se le restaría uno
                     f_resta = -1;
                     break;
                 case vars.abajo:
@@ -168,49 +200,58 @@ public final class CrearTablero extends javax.swing.JFrame {
             }
         espacios++;
        
-       
+       //Si está en los límites al ser restados
        if(columna >= 0 && columna <=9 && fila >= 0 && fila <=9  ){
-           boolean existeEspacio = true;
+           //Se comprueba ahora si los espacios estan vacios
+           boolean espaciosVacios = true;
+           //Para cada posición hasta el numero de espacios del barco actual
            for (int i = 0; i < espacios; i++) {
-               
-               
-                if(matris[c][f] == null){
+               //Si la matriz es igual a null no hace nada
+                if(matriz[c][f] == null){
                 }
-                
+                //DE lo contrario espacios vacios será false
                 else{
-                    existeEspacio = false;
+                    espaciosVacios = false;
+                    //Y se finaliza el for 
                     break;
                 }
-                c = c+c_resta;
-                f = f+ f_resta;
+                //Aquí ses aumentan o se restan las columnas o las filas
+                c = c + c_resta;
+                f = f + f_resta;
            }
-           
-           if(existeEspacio)
+           //Si existen espacios vacíos
+           if(espaciosVacios)
                return true;
+           //Si algun espacio está lleno
            else
                return false;
        }
+       //Si alguno sobrepasa los límites al ser restados
        else
            return false;
        
     } 
     
-    
+    //Función que obtiene la dirección que elige el usuario
     public int getDireccion(){
        String[] options = {"Arriba", "Abajo", "Izquierda", "Derecha"};
        //Esto retorna la posición del la opcion seleccionada
        return JOptionPane.showOptionDialog(null, "Es necesario que seleccione una opcion", "Orientación", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,options,options[3]);
     }
     
-    
-    public void dibujarBotones(){  
+    //Función que dibuja los botones
+    public void dibujarBotones(){
+        //PAra cada elemento de la columna
         for (int c= 0; c < tamanoColumna; c++) {
-            
+            //PAra cada elemento de la fila
             for (int f = 0; f < tamanoFila; f++) {
-                
+                //Se utiliza una variable para guardar el botón actual
                 MyButton actual = mBotones[c][f] = new MyButton(c,f);
+                //SE le da un tamaño
                 actual.setBounds((c*tamanoBoton)+30 ,(f*tamanoBoton)+60, tamanoBoton, tamanoBoton);
+                //Se le pone el color por defecto
                 actual.setBackground(new Color(133, 164, 255));
+                //Se le pone el color de letra blaca
                 actual.setForeground(Color.WHITE);
                 
                 //Se le pone un escuchador al botón
@@ -226,17 +267,19 @@ public final class CrearTablero extends javax.swing.JFrame {
                     }
                     
                 });
+                //Se añade al contenedor de botones
                 contenedor.add(actual);
             }
         }
     }    
     
+    //Fucnion para devolver un numero random
     public int getRandom(int limite){
         return random.nextInt(limite);
     }
     
     
-    public void estadoMatriz(String[][] matris){
+    public void imprimirMatriz(String[][] matris){
         for (int c = 0; c < 10; c++) {
                 System.out.println(isNull(matris[0][c])+ " "+ isNull(matris[1][c]) + " "+ isNull(matris[2][c]) +" "+  isNull(matris[3][c]) +" "+ isNull(matris[4][c])
                                     + " "+isNull(matris[5][c]) + " "+ isNull(matris[6][c]) +" "+  isNull(matris[7][c]) +" "+ isNull(matris[8][c])+" "+ isNull(matris[9][c]));
@@ -244,6 +287,7 @@ public final class CrearTablero extends javax.swing.JFrame {
         System.out.println("\n");
     }
     
+    //PAra comprobar si es null devuelve - si no entonces devuelve el mismo string
     public String isNull(String str){
         if(str == null)
             return "-";
@@ -294,9 +338,11 @@ public final class CrearTablero extends javax.swing.JFrame {
 
         indicador.setFont(new java.awt.Font("Ubuntu", 1, 18)); // NOI18N
         indicador.setForeground(new java.awt.Color(115, 181, 254));
-        indicador.setText("PORTAAVIONES");
+        indicador.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        indicador.setText("Portaaviones");
 
         finalizar.setBackground(java.awt.Color.red);
+        finalizar.setFont(new java.awt.Font("Ubuntu", 0, 18)); // NOI18N
         finalizar.setForeground(java.awt.Color.white);
         finalizar.setText("FINALIZAR");
         finalizar.addActionListener(new java.awt.event.ActionListener() {
@@ -310,19 +356,21 @@ public final class CrearTablero extends javax.swing.JFrame {
         contenedorLayout.setHorizontalGroup(
             contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(contenedorLayout.createSequentialGroup()
-                .addGap(214, 214, 214)
-                .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(finalizar)
-                    .addComponent(indicador))
-                .addContainerGap(744, Short.MAX_VALUE))
+                .addGap(201, 201, 201)
+                .addGroup(contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(finalizar, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(contenedorLayout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(indicador)))
+                .addContainerGap(204, Short.MAX_VALUE))
         );
         contenedorLayout.setVerticalGroup(
             contenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(contenedorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(indicador, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 520, Short.MAX_VALUE)
-                .addComponent(finalizar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 532, Short.MAX_VALUE)
+                .addComponent(finalizar, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -331,19 +379,21 @@ public final class CrearTablero extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(contenedor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addComponent(contenedor, javax.swing.GroupLayout.DEFAULT_SIZE, 560, Short.MAX_VALUE)
+                .addGap(0, 0, 0))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(contenedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(contenedor, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void finalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finalizarActionPerformed
+        //Cierra la ventana actual
         dispose();
+        //Abre el objeto juego y le envia todos los atributos para inicializarlo y se pone visible
         new Juego(mUsuario,mPC,portaaviones,destructor,fragata,transportador1,transportador2,finalizado,tamanoColumna,tamanoFila).setVisible(true);
     }//GEN-LAST:event_finalizarActionPerformed
 

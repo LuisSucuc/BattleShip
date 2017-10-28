@@ -6,7 +6,8 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 
 public final class Juego extends javax.swing.JFrame {
-
+        
+    //SE inicializan todas las variables anteriores
     int tamanoColumna;
     int tamanoFila;
     Barco portaavionesPC;
@@ -21,7 +22,9 @@ public final class Juego extends javax.swing.JFrame {
     Barco transportador2U;
 
     Barco finalizado;
+    //Para decir que la posición ha sido marcada
     String posicionMarcada = "X";
+    //Si el turno es de la computadora
     boolean turnoPC = false;
     private final String[][] mPC;
     private final String[][] mUsuario;
@@ -30,6 +33,7 @@ public final class Juego extends javax.swing.JFrame {
     private static final int tamanoBoton = 45;
     Random random = new Random();
 
+    //Constructor que inicializan todas las variables para esta clase
     public Juego(String[][] mUsuario, String[][] mPC, Barco portaaviones, Barco destructor, Barco fragata, Barco transportador1, Barco transportador2, Barco finalizado, int tamanoColumna, int tamanoFila) {
         initComponents();
         //Asignación de variables enviadas
@@ -42,6 +46,7 @@ public final class Juego extends javax.swing.JFrame {
         this.transportador1PC = transportador1;
         this.transportador2PC = transportador2;
         
+        //SE copian los objetos
         this.portaavionesU = copiarObjeto(portaaviones);
         this.destructorU = copiarObjeto(destructor);
         this.fragataU = copiarObjeto(fragata);
@@ -52,29 +57,30 @@ public final class Juego extends javax.swing.JFrame {
         this.tamanoColumna = tamanoColumna;
         this.tamanoFila = tamanoFila;
 
-        //Asignar labels
-        this.portaavionesPC.setLabel(lblPortaavionesPC);
-        this.destructorPC.setLabel(lblDestructorPC);
-        this.fragataPC.setLabel(lblFragataPC);
-        this.transportador1PC.setLabel(lblTransportador1PC);
-        this.transportador2PC.setLabel(lblTransportador2PC);
+        //Asignar labels para controlar el puntaje
+        this.portaavionesPC.setLabelPuntaje(lblPortaavionesPC);
+        this.destructorPC.setLabelPuntaje(lblDestructorPC);
+        this.fragataPC.setLabelPuntaje(lblFragataPC);
+        this.transportador1PC.setLabelPuntaje(lblTransportador1PC);
+        this.transportador2PC.setLabelPuntaje(lblTransportador2PC);
 
         
-        this.portaavionesU.setLabel(lblPortaavionesU);
-        this.destructorU.setLabel(lblDestructorU);
-        this.fragataU.setLabel(lblFragataU);
-        this.transportador1U.setLabel(lblTransportador1U);
-        this.transportador2U.setLabel(lblTransportador2U);
-        
+        this.portaavionesU.setLabelPuntaje(lblPortaavionesU);
+        this.destructorU.setLabelPuntaje(lblDestructorU);
+        this.fragataU.setLabelPuntaje(lblFragataU);
+        this.transportador1U.setLabelPuntaje(lblTransportador1U);
+        this.transportador2U.setLabelPuntaje(lblTransportador2U);
 
-        //Matrices de botones
+        //Matrices de botones 
         btnPC = new MyButton[tamanoColumna][tamanoFila];
         btnUsuario = new MyButton[tamanoColumna][tamanoFila];
-
+        //Nuevamente se dibujan los botones pero ahora para ambas matrices
         dibujarBotones();
-        estadoMatrices();
+        //SE imprime el estado de las matrices enviadas
+        imprimirMatrices();
     }
 
+    //Dibuja todos los botones
     public void dibujarBotones() {
         for (int columna = 0; columna < tamanoColumna; columna++) {
             for (int fila = 0; fila < tamanoFila; fila++) {
@@ -89,20 +95,27 @@ public final class Juego extends javax.swing.JFrame {
                 actualPC.setBounds((columna * tamanoBoton + 15), (fila * tamanoBoton) + 15, tamanoBoton, tamanoBoton);
                 actualPC.setBackground(new Color(133, 164, 255));
                 actualPC.addActionListener((ActionEvent e) -> {
+                    //Al panel pc se le envia el lugar donde se hizo click
                     clickUsuario(actualUsuario.columna, actualUsuario.fila);
                 });
                 panelPC.add(actualPC);
             }
         }
     }
-
+    
+    //Si se genera un click en el botón de usuario
     public void clickUsuario(int columna, int fila) {
+        //Si no es turno de la PC
         if (!turnoPC) {
+            //Se obtiene el indicador de la posicion enviada
             String click = mPC[columna][fila];
+            //Barco que fue acertado
             Barco barcoAcertado;
-            boolean acerto = true;
-            //Si ya fue marcado
+            //Si acertó el usuario
+            boolean acertoUsuario = true;
+            //Si no ha sido marcado 
             if (click != posicionMarcada) {
+                //Se asigna el barco acertado
                 if (click == portaavionesPC.indicador) {
                     barcoAcertado = portaavionesPC;
                 } else if (click == destructorPC.indicador) {
@@ -114,39 +127,53 @@ public final class Juego extends javax.swing.JFrame {
                 } else if (click == transportador2PC.indicador) {
                     barcoAcertado = transportador2PC;
                 } else {
+                    //No acerto el usuario
                     barcoAcertado = finalizado;
-                    acerto = false;
+                    acertoUsuario = false;
                 }
-
+                
+                //Al botón se le pone los atrributos correspondientes
                 btnPC[columna][fila].setBackground(barcoAcertado.color);
                 btnPC[columna][fila].setText(barcoAcertado.indicador);
+                btnPC[columna][fila].setForeground(Color.WHITE);
                 mPC[columna][fila] = posicionMarcada;
-
-                if (acerto) {
+                
+                
+                //Si acertó el usuario
+                if (acertoUsuario) {
+                    //Se resta el puntaje
                     barcoAcertado.restarPuntaje();
-                    barcoAcertado.actualizarLabel();
+                    //Se actualiza el label de puntaje
+                    barcoAcertado.actualizarPuntaje();
+                    //Se comprueba si existe ganador
                     existeGanador();
                     
-                    
-                } else {
-
+                } 
+                //Se llama a la función para que de click la PC
+                else {
                     clickPC();
                 }
                 
             }
         }
     }
-
+    
+    //Función click la PC
     public void clickPC() {
+        //El turno ahora es de la pc
         turnoPC = true;
+        //Se obtienen posiciones random
         int columna = getRandom(10);
         int fila = getRandom(10);
+        //El indicador en donde dio click
         String click = mUsuario[columna][fila];
-        
+        //El barco que acertó
         Barco barcoAcertado;
-        boolean acerto = true;
-        //Si ya fue marcado
+        //Si acertó la PC
+        boolean acertoPC = true;
+        //Si no ha sido marcado
         if (click != posicionMarcada) {
+            //Se elige el barco acertado
             if (click == portaavionesU.indicador) {
                 barcoAcertado = portaavionesU;
             } else if (click == destructorU.indicador) {
@@ -158,30 +185,38 @@ public final class Juego extends javax.swing.JFrame {
             } else if (click == transportador2U.indicador) {
                 barcoAcertado = transportador2U;
             } else {
+                //No acertó el usuario
                 barcoAcertado = finalizado;
-                acerto = false;
+                acertoPC = false;
             }
-
+            
+            //Al botón se le pone los atrributos correspondientes
             btnUsuario[columna][fila].setBackground(barcoAcertado.color);
             btnUsuario[columna][fila].setText(barcoAcertado.indicador);
+            btnUsuario[columna][fila].setForeground(Color.WHITE);
             mUsuario[columna][fila] = posicionMarcada;
            
-
-            if (acerto) {
+            //Si acero la pc
+            if (acertoPC) {
                 barcoAcertado.restarPuntaje();
-                barcoAcertado.actualizarLabel();
+                barcoAcertado.actualizarPuntaje();
+                //Compreuba ganador
                 existeGanador();
+                //Y nuevamente tiene una oportunidad
                 clickPC();
             } else {
+                //De lo contrario es turno del usuario
                  turnoPC = false;        
             }
             
-        } else {
+        } 
+        //Si el lugar está ocupado nuevamente se llama a la PC hasta que encuentre lugar
+        else {
             clickPC();
         }
     }
 
-    public void estadoMatrices() {
+    public void imprimirMatrices() {
         System.out.println("USUARIO");
         String[][] matris = mUsuario;
         for (int c = 0; c < 10; c++) {
@@ -207,26 +242,33 @@ public final class Juego extends javax.swing.JFrame {
 
     }
     
+    //Función que comprueba si existe ganador
     public void existeGanador(){
-        boolean ganador = false;
+        
+        boolean existeGanador = false;
+        //Si todos los puntajes de la PC están a cero ganó el usuario
         if(portaavionesPC.puntaje == 0 && destructorPC.puntaje == 0 && fragataPC.puntaje == 0 && transportador1PC.puntaje == 0 && transportador2PC.puntaje == 0){
                JOptionPane.showConfirmDialog(rootPane, "GANO USUARIO","GANADOR", JOptionPane.PLAIN_MESSAGE);
-               ganador = true;
+               existeGanador = true;
         }
         
+        //Si todos los puntajes del Jugador están a cero ganó la PC
         if(portaavionesU.puntaje == 0 && destructorU.puntaje == 0 && fragataU.puntaje == 0 && transportador1U.puntaje == 0 && transportador2U.puntaje == 0){
                JOptionPane.showConfirmDialog(rootPane, "GANO Computadora","GANADOR", JOptionPane.PLAIN_MESSAGE);
-               ganador = true;
+               existeGanador = true;
         }
-        if (ganador) {
+        //Si existe ganador cierra el programa
+        if (existeGanador) {
             System.exit(0);
         }
     }
+    
     
     public int getRandom(int limite){
         return random.nextInt(limite);
     }
     
+    //Se realiza una copia del objeto Barco (nuevo objeto en memoria)
     public Barco copiarObjeto(Barco objeto){
         return new Barco(objeto.nombre, objeto.indicador, objeto.color, objeto.tamano);
     }
